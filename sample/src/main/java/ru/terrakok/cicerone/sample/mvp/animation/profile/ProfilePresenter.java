@@ -48,7 +48,7 @@ public class ProfilePresenter extends MvpPresenter<ProfileView> {
     }
 
     public void onPhotoClicked() {
-        router.navigateTo(Screens.SELECT_PHOTO_SCREEN, PHOTO_RESULT_CODE);
+        router.navigateTo(new Screens.SelectPhoto(PHOTO_RESULT_CODE));
     }
 
     public void onBackPressed() {

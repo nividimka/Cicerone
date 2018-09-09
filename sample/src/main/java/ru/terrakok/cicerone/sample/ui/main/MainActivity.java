@@ -13,11 +13,10 @@ import java.util.Comparator;
 
 import javax.inject.Inject;
 
+import ru.terrakok.cicerone.Command;
 import ru.terrakok.cicerone.Navigator;
 import ru.terrakok.cicerone.NavigatorHolder;
-import ru.terrakok.cicerone.android.SupportFragmentNavigator;
-import ru.terrakok.cicerone.commands.Command;
-import ru.terrakok.cicerone.commands.Replace;
+import ru.terrakok.cicerone.android.support.SupportFragmentNavigator;
 import ru.terrakok.cicerone.sample.R;
 import ru.terrakok.cicerone.sample.SampleApplication;
 import ru.terrakok.cicerone.sample.Screens;
@@ -35,10 +34,6 @@ public class MainActivity extends MvpAppCompatActivity {
     NavigatorHolder navigatorHolder;
 
     private Navigator navigator = new SupportFragmentNavigator(getSupportFragmentManager(), R.id.main_container) {
-        @Override
-        protected Fragment createFragment(String screenKey, Object data) {
-            return SampleFragment.getNewInstance((int) data);
-        }
 
         @Override
         protected void exit() {
@@ -62,7 +57,7 @@ public class MainActivity extends MvpAppCompatActivity {
         screensSchemeTV = (TextView) findViewById(R.id.screens_scheme);
 
         if (savedInstanceState == null) {
-            navigator.applyCommands(new Command[]{new Replace(Screens.SAMPLE_SCREEN, 1)});
+            navigator.applyCommands(new Command[]{Command.replace(new Screens.Sample(1))});
         } else {
             printScreensScheme();
         }

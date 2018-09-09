@@ -11,21 +11,15 @@ import com.arellomobile.mvp.presenter.ProvidePresenter;
 
 import javax.inject.Inject;
 
+import ru.terrakok.cicerone.Command;
 import ru.terrakok.cicerone.Navigator;
 import ru.terrakok.cicerone.NavigatorHolder;
 import ru.terrakok.cicerone.Router;
-import ru.terrakok.cicerone.commands.Back;
-import ru.terrakok.cicerone.commands.Command;
-import ru.terrakok.cicerone.commands.Forward;
-import ru.terrakok.cicerone.commands.Replace;
+import ru.terrakok.cicerone.android.support.SupportAppScreen;
 import ru.terrakok.cicerone.sample.R;
 import ru.terrakok.cicerone.sample.SampleApplication;
-import ru.terrakok.cicerone.sample.Screens;
 import ru.terrakok.cicerone.sample.mvp.start.StartActivityPresenter;
 import ru.terrakok.cicerone.sample.mvp.start.StartActivityView;
-import ru.terrakok.cicerone.sample.ui.animations.ProfileActivity;
-import ru.terrakok.cicerone.sample.ui.bottom.BottomNavigationActivity;
-import ru.terrakok.cicerone.sample.ui.main.MainActivity;
 
 /**
  * Created by terrakok 21.11.16
@@ -101,49 +95,40 @@ public class StartActivity extends MvpAppCompatActivity implements StartActivity
         }
 
         private void applyCommand(Command command) {
-            if (command instanceof Forward) {
-                forward((Forward) command);
-            } else if (command instanceof Replace) {
-                replace((Replace) command);
-            } else if (command instanceof Back) {
-                back();
+            switch (command.getType()) {
+                case Command.FORWARD:
+                    forward(command);
+                    break;
+                case Command.REPLACE:
+                    replace(command);
+                    break;
+                case Command.BACK:
+                    back();
+                    break;
+                default:
+                    Log.e("Cicerone", "Illegal command for this screen: " + command.getClass().getSimpleName());
+                    break;
+            }
+        }
+
+        private void forward(Command command) {
+            SupportAppScreen screen = (SupportAppScreen) command.getScreen();
+            Intent intent = screen.getActivityIntent(StartActivity.this);
+            if (intent != null) {
+                startActivity(intent);
             } else {
-                Log.e("Cicerone", "Illegal command for this screen: " + command.getClass().getSimpleName());
+                Log.e("Cicerone", "Unknown screen: " + screen.getClass().getSimpleName());
             }
         }
 
-        private void forward(Forward command) {
-            switch (command.getScreenKey()) {
-                case Screens.START_ACTIVITY_SCREEN:
-                    startActivity(new Intent(StartActivity.this, StartActivity.class));
-                    break;
-                case Screens.MAIN_ACTIVITY_SCREEN:
-                    startActivity(new Intent(StartActivity.this, MainActivity.class));
-                    break;
-                case Screens.BOTTOM_NAVIGATION_ACTIVITY_SCREEN:
-                    startActivity(new Intent(StartActivity.this, BottomNavigationActivity.class));
-                    break;
-                case Screens.PROFILE_SCREEN:
-                    startActivity(new Intent(StartActivity.this, ProfileActivity.class));
-                    break;
-                default:
-                    Log.e("Cicerone", "Unknown screen: " + command.getScreenKey());
-                    break;
-            }
-        }
-
-        private void replace(Replace command) {
-            switch (command.getScreenKey()) {
-                case Screens.START_ACTIVITY_SCREEN:
-                case Screens.MAIN_ACTIVITY_SCREEN:
-                case Screens.BOTTOM_NAVIGATION_ACTIVITY_SCREEN:
-                case Screens.PROFILE_SCREEN:
-                    forward(new Forward(command.getScreenKey(), command.getTransitionData()));
-                    finish();
-                    break;
-                default:
-                    Log.e("Cicerone", "Unknown screen: " + command.getScreenKey());
-                    break;
+        private void replace(Command command) {
+            SupportAppScreen screen = (SupportAppScreen) command.getScreen();
+            Intent intent = screen.getActivityIntent(StartActivity.this);
+            if (intent != null) {
+                startActivity(intent);
+                finish();
+            } else {
+                Log.e("Cicerone", "Unknown screen: " + screen.getClass().getSimpleName());
             }
         }
 

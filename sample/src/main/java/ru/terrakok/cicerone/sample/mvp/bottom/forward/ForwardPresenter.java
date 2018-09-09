@@ -14,10 +14,12 @@ import ru.terrakok.cicerone.sample.Screens;
 public class ForwardPresenter extends MvpPresenter<ForwardView> {
     private Router router;
     private int number;
+    private String containerName;
 
-    public ForwardPresenter(Router router, int number) {
+    public ForwardPresenter(Router router, int number, String containerName) {
         this.router = router;
         this.number = number;
+        this.containerName = containerName;
 
         getViewState().setChainText(createChain(number));
     }
@@ -33,11 +35,11 @@ public class ForwardPresenter extends MvpPresenter<ForwardView> {
     }
 
     public void onForwardPressed() {
-        router.navigateTo(Screens.FORWARD_SCREEN, number + 1);
+        router.navigateTo(new Screens.Forward(containerName, number + 1));
     }
 
     public void onGithubPressed() {
-        router.navigateTo(Screens.GITHUB_SCREEN);
+        router.navigateTo(new Screens.Github());
     }
 
     public void onBackPressed() {

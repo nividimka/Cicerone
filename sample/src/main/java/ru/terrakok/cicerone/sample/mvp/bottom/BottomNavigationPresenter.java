@@ -19,17 +19,17 @@ public class BottomNavigationPresenter extends MvpPresenter<BottomNavigationView
 
     public void onTabAndroidClick() {
         getViewState().highlightTab(BottomNavigationView.ANDROID_TAB_POSITION);
-        router.replaceScreen(Screens.ANDROID_SCREEN);
+        router.replaceScreen(new Screens.Android());
     }
 
     public void onTabBugClick() {
         getViewState().highlightTab(BottomNavigationView.BUG_TAB_POSITION);
-        router.replaceScreen(Screens.BUG_SCREEN);
+        router.replaceScreen(new Screens.Bug());
     }
 
     public void onTabDogClick() {
         getViewState().highlightTab(BottomNavigationView.DOG_TAB_POSITION);
-        router.replaceScreen(Screens.DOG_SCREEN);
+        router.replaceScreen(new Screens.Dog());
     }
 
     public void onBackPressed() {

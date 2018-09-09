@@ -12,15 +12,12 @@ import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 
 import javax.inject.Inject;
 
+import ru.terrakok.cicerone.Command;
 import ru.terrakok.cicerone.Navigator;
 import ru.terrakok.cicerone.NavigatorHolder;
 import ru.terrakok.cicerone.Router;
-import ru.terrakok.cicerone.commands.Back;
-import ru.terrakok.cicerone.commands.Command;
-import ru.terrakok.cicerone.commands.Replace;
 import ru.terrakok.cicerone.sample.R;
 import ru.terrakok.cicerone.sample.SampleApplication;
-import ru.terrakok.cicerone.sample.Screens;
 import ru.terrakok.cicerone.sample.mvp.bottom.BottomNavigationPresenter;
 import ru.terrakok.cicerone.sample.mvp.bottom.BottomNavigationView;
 import ru.terrakok.cicerone.sample.ui.common.BackButtonListener;
@@ -158,34 +155,36 @@ public class BottomNavigationActivity extends MvpAppCompatActivity implements Bo
         }
 
         private void applyCommand(Command command) {
-            if (command instanceof Back) {
-                finish();
-            } else if (command instanceof Replace) {
-                FragmentManager fm = getSupportFragmentManager();
-
-                switch (((Replace) command).getScreenKey()) {
-                    case Screens.ANDROID_SCREEN:
-                        fm.beginTransaction()
-                                .detach(bugTabFragment)
-                                .detach(dogTabFragment)
-                                .attach(androidTabFragment)
-                                .commitNow();
-                        break;
-                    case Screens.BUG_SCREEN:
-                        fm.beginTransaction()
-                                .detach(androidTabFragment)
-                                .detach(dogTabFragment)
-                                .attach(bugTabFragment)
-                                .commitNow();
-                        break;
-                    case Screens.DOG_SCREEN:
-                        fm.beginTransaction()
-                                .detach(androidTabFragment)
-                                .detach(bugTabFragment)
-                                .attach(dogTabFragment)
-                                .commitNow();
-                        break;
-                }
+            switch (command.getType()) {
+                case Command.BACK:
+                    finish();
+                    break;
+                case Command.REPLACE:
+                    FragmentManager fm = getSupportFragmentManager();
+                    switch (command.getScreen().getScreenKey()) {
+                        case "android screen":
+                            fm.beginTransaction()
+                                    .detach(bugTabFragment)
+                                    .detach(dogTabFragment)
+                                    .attach(androidTabFragment)
+                                    .commitNow();
+                            break;
+                        case "bug screen":
+                            fm.beginTransaction()
+                                    .detach(androidTabFragment)
+                                    .detach(dogTabFragment)
+                                    .attach(bugTabFragment)
+                                    .commitNow();
+                            break;
+                        case "dog screen":
+                            fm.beginTransaction()
+                                    .detach(androidTabFragment)
+                                    .detach(bugTabFragment)
+                                    .attach(dogTabFragment)
+                                    .commitNow();
+                            break;
+                    }
+                    break;
             }
         }
     };
