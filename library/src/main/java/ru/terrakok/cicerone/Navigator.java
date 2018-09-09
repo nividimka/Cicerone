@@ -4,8 +4,6 @@
 
 package ru.terrakok.cicerone;
 
-import ru.terrakok.cicerone.commands.Command;
-
 /**
  * The low-level navigation interface.
  * Navigator is the one who actually performs any transition.

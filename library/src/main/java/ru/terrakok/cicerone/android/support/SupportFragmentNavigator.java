@@ -2,44 +2,41 @@
  * Created by Konstantin Tskhovrebov (aka @terrakok)
  */
 
-package ru.terrakok.cicerone.android;
+package ru.terrakok.cicerone.android.support;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 
 import java.util.LinkedList;
 
+import ru.terrakok.cicerone.Command;
 import ru.terrakok.cicerone.Navigator;
-import ru.terrakok.cicerone.commands.Back;
-import ru.terrakok.cicerone.commands.BackTo;
-import ru.terrakok.cicerone.commands.Command;
-import ru.terrakok.cicerone.commands.Forward;
-import ru.terrakok.cicerone.commands.Replace;
+import ru.terrakok.cicerone.Screen;
 
 /**
- * {@link Navigator} implementation based on the fragments.
+ * {@link Navigator} implementation based on the support fragments.
  * <p>
- * {@link BackTo} navigation command will return to the root if
+ * "back_to" navigation command will return to the root if
  * needed screen isn't found in the screens chain.
- * To change this behavior override {@link #backToUnexisting(AppScreen)} method.
+ * To change this behavior override {@link #backToUnexisting(SupportFragmentScreen)} method.
  * </p>
  * <p>
- * {@link Back} command will call {@link #exit()} method if current screen is the root.
+ * "back" command will call {@link #exit()} method if current screen is the root.
  * </p>
  */
-public abstract class FragmentNavigator implements Navigator {
+public abstract class SupportFragmentNavigator implements Navigator {
     private FragmentManager fragmentManager;
     private int containerId;
     private LinkedList<String> localStackCopy;
 
     /**
-     * Creates FragmentNavigator.
+     * Creates SupportFragmentNavigator.
      *
-     * @param fragmentManager fragment manager
+     * @param fragmentManager support fragment manager
      * @param containerId     id of the fragments container layout
      */
-    public FragmentNavigator(FragmentManager fragmentManager, int containerId) {
+    public SupportFragmentNavigator(FragmentManager fragmentManager, int containerId) {
         this.fragmentManager = fragmentManager;
         this.containerId = containerId;
     }
@@ -48,16 +45,16 @@ public abstract class FragmentNavigator implements Navigator {
      * Override this method to setup fragment transaction {@link FragmentTransaction}.
      * For example: setCustomAnimations(...), addSharedElement(...) or setReorderingAllowed(...)
      *
-     * @param command             current navigation command. Will be only {@link Forward} or {@link Replace}
+     * @param command             current navigation command. Will be only "forward" or "replace"
      * @param currentFragment     current fragment in container
-     *                            (for {@link Replace} command it will be screen previous in new chain, NOT replaced screen)
+     *                            (for "replace" command it will be screen previous in new chain, NOT replaced screen)
      * @param nextFragment        next screen fragment
      * @param fragmentTransaction fragment transaction
      */
     protected void setupFragmentTransaction(Command command,
-                                                     Fragment currentFragment,
-                                                     Fragment nextFragment,
-                                                     FragmentTransaction fragmentTransaction) {
+                                            Fragment currentFragment,
+                                            Fragment nextFragment,
+                                            FragmentTransaction fragmentTransaction) {
     }
 
     @Override
@@ -87,22 +84,27 @@ public abstract class FragmentNavigator implements Navigator {
      * @param command the navigation command to apply
      */
     protected void applyCommand(Command command) {
-        if (command instanceof Forward) {
-            forward((Forward) command);
-        } else if (command instanceof Back) {
-            back();
-        } else if (command instanceof Replace) {
-            replace((Replace) command);
-        } else if (command instanceof BackTo) {
-            backTo((BackTo) command);
+        switch (command.getType()) {
+            case Command.FORWARD:
+                forward(command);
+                break;
+            case Command.BACK:
+                back();
+                break;
+            case Command.REPLACE:
+                replace(command);
+                break;
+            case Command.BACK_TO:
+                backTo(command);
+                break;
         }
     }
 
     /**
-     * Performs {@link Forward} command transition
+     * Performs "forward" command transition
      */
-    protected void forward(Forward command) {
-        AppScreen screen = (AppScreen) command.getScreen();
+    protected void forward(Command command) {
+        SupportFragmentScreen screen = (SupportFragmentScreen) command.getScreen();
         Fragment fragment = createFragment(screen);
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -122,7 +124,7 @@ public abstract class FragmentNavigator implements Navigator {
     }
 
     /**
-     * Performs {@link Back} command transition
+     * Performs "back" command transition
      */
     protected void back() {
         if (localStackCopy.size() > 0) {
@@ -134,10 +136,10 @@ public abstract class FragmentNavigator implements Navigator {
     }
 
     /**
-     * Performs {@link Replace} command transition
+     * Performs "replace" command transition
      */
-    protected void replace(Replace command) {
-        AppScreen screen = (AppScreen) command.getScreen();
+    protected void replace(Command command) {
+        SupportFragmentScreen screen = (SupportFragmentScreen) command.getScreen();
         Fragment fragment = createFragment(screen);
 
         if (localStackCopy.size() > 0) {
@@ -176,15 +178,15 @@ public abstract class FragmentNavigator implements Navigator {
     }
 
     /**
-     * Performs {@link BackTo} command transition
+     * Performs "back_to" command transition
      */
-    protected void backTo(BackTo command) {
-        String key = command.getScreen().getScreenKey();
+    protected void backTo(Command command) {
+        Screen screen = command.getScreen();
 
-        if (key == null) {
+        if (screen == null) {
             backToRoot();
-
         } else {
+            String key = screen.getScreenKey();
             int index = localStackCopy.indexOf(key);
             int size = localStackCopy.size();
 
@@ -194,7 +196,7 @@ public abstract class FragmentNavigator implements Navigator {
                 }
                 fragmentManager.popBackStack(key, 0);
             } else {
-                backToUnexisting((AppScreen) command.getScreen());
+                backToUnexisting((SupportAppScreen) command.getScreen());
             }
         }
     }
@@ -210,7 +212,7 @@ public abstract class FragmentNavigator implements Navigator {
      * @param screen screen
      * @return instantiated fragment for the passed screen
      */
-    protected Fragment createFragment(AppScreen screen) {
+    protected Fragment createFragment(SupportFragmentScreen screen) {
         Fragment fragment = screen.getFragment();
 
         if (fragment == null) {
@@ -225,11 +227,11 @@ public abstract class FragmentNavigator implements Navigator {
     protected abstract void exit();
 
     /**
-     * Called when we tried to back to some specific screen (via {@link BackTo} command),
+     * Called when we tried to back to some specific screen (via "back" command),
      * but didn't found it.
      * @param screen screen
      */
-    protected void backToUnexisting(AppScreen screen) {
+    protected void backToUnexisting(SupportFragmentScreen screen) {
         backToRoot();
     }
 
@@ -237,7 +239,7 @@ public abstract class FragmentNavigator implements Navigator {
     /**
      * Called if we can't create a fragment.
      */
-    protected void errorWhileCreatingFragment(AppScreen screen) {
+    protected void errorWhileCreatingFragment(SupportFragmentScreen screen) {
         throw new RuntimeException("Can't create a fragment: " + screen.getClass().getSimpleName());
     }
 }

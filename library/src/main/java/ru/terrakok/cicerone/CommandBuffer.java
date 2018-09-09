@@ -7,8 +7,6 @@ package ru.terrakok.cicerone;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import ru.terrakok.cicerone.commands.Command;
-
 /**
  * Passes navigation command to an active {@link Navigator}
  * or stores it in the pending commands queue to pass it later.

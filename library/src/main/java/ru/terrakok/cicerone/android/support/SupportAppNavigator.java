@@ -2,35 +2,34 @@
  * Created by Vasili Chyrvon (vasili.chyrvon@gmail.com)
  */
 
-package ru.terrakok.cicerone.android;
+package ru.terrakok.cicerone.android.support;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 
-import ru.terrakok.cicerone.commands.Command;
-import ru.terrakok.cicerone.commands.Forward;
-import ru.terrakok.cicerone.commands.Replace;
+import ru.terrakok.cicerone.Command;
 
 /**
- * Extends {@link FragmentNavigator} to allow
+ * Extends {@link SupportFragmentNavigator} to allow
  * open new or replace current activity.
  * <p>
  * This navigator DOESN'T provide full featured Activity navigation,
  * but can ease Activity start or replace from current navigator.
  * </p>
  */
-public abstract class AppNavigator extends FragmentNavigator {
+public abstract class SupportAppNavigator extends SupportFragmentNavigator {
 
     private Activity activity;
 
-    public AppNavigator(Activity activity, int containerId) {
-        super(activity.getFragmentManager(), containerId);
+    public SupportAppNavigator(FragmentActivity activity, int containerId) {
+        super(activity.getSupportFragmentManager(), containerId);
         this.activity = activity;
     }
 
-    public AppNavigator(Activity activity, FragmentManager fragmentManager, int containerId) {
+    public SupportAppNavigator(FragmentActivity activity, FragmentManager fragmentManager, int containerId) {
         super(fragmentManager, containerId);
         this.activity = activity;
     }
@@ -38,7 +37,7 @@ public abstract class AppNavigator extends FragmentNavigator {
     /**
      * Override this method to create option for start activity
      *
-     * @param command        current navigation command. Will be only {@link Forward} or {@link Replace}
+     * @param command        current navigation command. Will be only "forward" or "replace"
      * @param activityIntent activity intent
      * @return transition options
      */
@@ -47,8 +46,8 @@ public abstract class AppNavigator extends FragmentNavigator {
     }
 
     @Override
-    protected void forward(Forward command) {
-        AppScreen screen = (AppScreen) command.getScreen();
+    protected void forward(Command command) {
+        SupportAppScreen screen = (SupportAppScreen) command.getScreen();
         Intent activityIntent = screen.getActivityIntent(activity);
 
         // Start activity
@@ -61,8 +60,8 @@ public abstract class AppNavigator extends FragmentNavigator {
     }
 
     @Override
-    protected void replace(Replace command) {
-        AppScreen screen = (AppScreen) command.getScreen();
+    protected void replace(Command command) {
+        SupportAppScreen screen = (SupportAppScreen) command.getScreen();
         Intent activityIntent = screen.getActivityIntent(activity);
 
         // Replace activity
@@ -75,7 +74,7 @@ public abstract class AppNavigator extends FragmentNavigator {
         }
     }
 
-    private void checkAndStartActivity(AppScreen screen, Intent activityIntent, Bundle options) {
+    private void checkAndStartActivity(SupportAppScreen screen, Intent activityIntent, Bundle options) {
         // Check if we can start activity
         if (activityIntent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(activityIntent, options);
@@ -87,10 +86,10 @@ public abstract class AppNavigator extends FragmentNavigator {
     /**
      * Called when there is no activity to open {@code screenKey}.
      *
-     * @param screen screen
+     * @param screen screen key
      * @param activityIntent intent passed to start Activity for the {@code screenKey}
      */
-    protected void unexistingActivity(AppScreen screen, Intent activityIntent) {
+    protected void unexistingActivity(SupportAppScreen screen, Intent activityIntent) {
         // Do nothing by default
     }
 

@@ -6,10 +6,6 @@ package ru.terrakok.cicerone;
 
 import java.util.HashMap;
 
-import ru.terrakok.cicerone.commands.Back;
-import ru.terrakok.cicerone.commands.BackTo;
-import ru.terrakok.cicerone.commands.Forward;
-import ru.terrakok.cicerone.commands.Replace;
 import ru.terrakok.cicerone.result.ResultListener;
 
 /**
@@ -69,7 +65,7 @@ public class Router extends BaseRouter {
      * @param screen screen
      */
     public void navigateTo(Screen screen) {
-        executeCommands(new Forward(screen));
+        executeCommands(Command.forward(screen));
     }
 
     /**
@@ -80,8 +76,8 @@ public class Router extends BaseRouter {
      */
     public void newScreenChain(Screen screen) {
         executeCommands(
-                new BackTo(null),
-                new Forward(screen)
+                Command.backTo(null),
+                Command.forward(screen)
         );
     }
 
@@ -92,8 +88,8 @@ public class Router extends BaseRouter {
      */
     public void newRootScreen(Screen screen) {
         executeCommands(
-                new BackTo(null),
-                new Replace(screen)
+                Command.backTo(null),
+                Command.replace(screen)
         );
     }
 
@@ -106,18 +102,18 @@ public class Router extends BaseRouter {
      * @param screen screen
      */
     public void replaceScreen(Screen screen) {
-        executeCommands(new Replace(screen));
+        executeCommands(Command.replace(screen));
     }
 
     /**
      * Return back to the needed screen from the chain.
      * Behavior in the case when no needed screens found depends on
-     * the processing of the {@link BackTo} command in a {@link Navigator} implementation.
+     * the processing of the "back_to" command in a {@link Navigator} implementation.
      *
      * @param screen screen
      */
     public void backTo(Screen screen) {
-        executeCommands(new BackTo(screen));
+        executeCommands(Command.backTo(screen));
     }
 
     /**
@@ -126,18 +122,18 @@ public class Router extends BaseRouter {
      */
     public void finishChain() {
         executeCommands(
-                new BackTo(null),
-                new Back()
+                Command.backTo(null),
+                Command.back()
         );
     }
 
     /**
      * Return to the previous screen in the chain.
      * Behavior in the case when the current screen is the root depends on
-     * the processing of the {@link Back} command in a {@link Navigator} implementation.
+     * the processing of the "back" command in a {@link Navigator} implementation.
      */
     public void exit() {
-        executeCommands(new Back());
+        executeCommands(Command.back());
     }
 
     /**
